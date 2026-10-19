@@ -1,0 +1,49 @@
+name: Fork checks
+
+on:
+  push:
+    branches: ["feat/**", "boyin"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fork-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.repository == 'anzksdk/tinycast'
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install lint tool
+        run: brew install swiftlint
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+      - name: Test
+        run: ./Scripts/run-tests.sh
+      - name: Lint
+        run: ./Scripts/lint.sh
+      - name: Check model imports
+        run: |
+          if grep -rlnE 'import (AppKit|SwiftUI|Cocoa)' Tinycast/Features/*/Model/; then
+            exit 1
+          fi
+      - name: Build isolated development app
+        run: |
+          xcodebuild -project Tinycast.xcodeproj -scheme Tinycast -configuration Debug \
+            -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO build
+          ditto -c -k --keepParent 'build/DerivedData/Build/Products/Debug/Tinycast Dev.app' \
+            build/Tinycast-Dev.zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Tinycast-Dev-${{ github.sha }}
+          path: build/Tinycast-Dev.zip
+          if-no-files-found: error
+          retention-days: 14
