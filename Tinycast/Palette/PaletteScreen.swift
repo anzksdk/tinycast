@@ -125,6 +125,12 @@ private extension MenuPanelCorner {
 }
 
 extension PaletteScreen {
+    func rowID(at selection: Int) -> AnyHashable? {
+        let rows = rows
+        guard rows.indices.contains(selection) else { return nil }
+        return AnyHashable(rows[selection].id)
+    }
+
     func hasPrimaryAction(at selection: Int) -> Bool { true }
     func isPrimaryActionEnabled(at selection: Int) -> Bool { true }
     func hasActions(at selection: Int) -> Bool { true }

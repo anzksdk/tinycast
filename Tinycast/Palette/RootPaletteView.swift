@@ -1369,7 +1369,8 @@ struct RootPaletteView: View {
         if screen.perform(.numberSlot(index), at: selection(in: screen)) { return true }
         let rows = screen.rows
         guard let selected = slots.selection(at: index, rowCount: rows.count),
-            screen.hasPrimaryAction(at: selected), screen.isPrimaryActionEnabled(at: selected)
+            screen.hasPrimaryAction(at: selected), screen.isPrimaryActionEnabled(at: selected),
+            let rowID = screen.rowID(at: selected)
         else { return true }
         let previous = vm.selection
         numberArgumentFocus = nil
@@ -1385,7 +1386,7 @@ struct RootPaletteView: View {
             } else {
                 numberArgumentFocus = NumberArgumentFocus(
                     mode: vm.mode, query: vm.query, resetToken: vm.resetToken, focusToken: vm.focusToken,
-                    selection: selected, rowID: AnyHashable(rows[selected].id))
+                    selection: selected, rowID: rowID)
             }
         } else {
             screen.activateNumbered(at: selected)
@@ -1415,9 +1416,7 @@ struct RootPaletteView: View {
             !menuOpen, !vm.isControlListOpen, !vm.isComposing
         else { return }
         let screen = screen
-        let rows = screen.rows
-        guard rows.indices.contains(request.selection),
-            AnyHashable(rows[request.selection].id) == request.rowID,
+        guard screen.rowID(at: request.selection) == request.rowID,
             let field = screen.headerAccessory(
                 at: request.selection, focus: $argumentFocused)?.firstIncompleteField
         else { return }
