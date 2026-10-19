@@ -48,6 +48,7 @@ struct RootPaletteView: View {
         let mode: PaletteMode
         let query: String
         let resetToken: UUID
+        let focusToken: UUID
         let selection: Int
         let rowID: AnyHashable
     }
@@ -401,7 +402,10 @@ struct RootPaletteView: View {
                 searchFocused = !screen.hidesSearchField
             }
             // A preserved screen re-summons as it was left, so a menu must end with the palette.
-            .modifier(PaletteHideObserver { if menuOpen { closeMenus() } })
+            .modifier(PaletteHideObserver {
+                numberArgumentFocus = nil
+                if menuOpen { closeMenus() }
+            })
             .onChange(of: vm.query) {
                 if vm.collapseQueryLineBreaks() { return }
                 land(restoringSelection: true)
@@ -1380,7 +1384,7 @@ struct RootPaletteView: View {
                 searchFocused = false
             } else {
                 numberArgumentFocus = NumberArgumentFocus(
-                    mode: vm.mode, query: vm.query, resetToken: vm.resetToken,
+                    mode: vm.mode, query: vm.query, resetToken: vm.resetToken, focusToken: vm.focusToken,
                     selection: selected, rowID: AnyHashable(rows[selected].id))
             }
         } else {
@@ -1407,7 +1411,7 @@ struct RootPaletteView: View {
         await Task.yield()
         guard !Task.isCancelled, numberArgumentFocus == request,
             vm.mode == request.mode, vm.query == request.query, vm.resetToken == request.resetToken,
-            vm.selection == request.selection, vm.isVisible, !isCollapsed,
+            vm.focusToken == request.focusToken, vm.selection == request.selection, vm.isVisible, !isCollapsed,
             !menuOpen, !vm.isControlListOpen, !vm.isComposing
         else { return }
         let screen = screen

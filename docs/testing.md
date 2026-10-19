@@ -15,9 +15,11 @@ The mechanical bar, in one place so it cannot drift. All five pass before a chan
 | A clean build | `xcodebuild … -configuration Debug CODE_SIGNING_ALLOWED=NO`, zero **new** warnings |
 | Docs still true | any doc your change made wrong, fixed in the same commit |
 
-There is no CI: every item is on you, run locally. CodeRabbit reviews each PR, but it is a reviewer,
-not a gate. Each is expanded below; the manual sweep at the end of this file is the sixth, judged by
-what you touched.
+The personal fork runs tests, lint, purity checks and an isolated Debug build in
+`.github/workflows/fork-checks.yml`. The build job uploads a development app independently of the
+test job, so an unrelated baseline failure does not hide compiler diagnostics. A downloadable app
+does not mean the test job passed. Each check is expanded below; the manual sweep at the end of this
+file is the sixth, judged by what you touched.
 
 ## The harnesses
 

@@ -50,7 +50,7 @@ final class PaletteState {
     var pendingArgumentEntryID: String?
     /// The row a shortcut opened root search onto, listed alone while the query is its name.
     var argumentEntryID: String?
-    /// True once ⌘ has been *held*, which numbers the favorite rows. The panel is the only writer.
+    /// True once ⌘ has been held, so result hints stay hidden during an ordinary chord tap.
     private(set) var commandHeld = false
     /// A chord is a tap, so the numbering waits out the tap before it claims the trailing labels.
     @ObservationIgnored private var commandHoldTask: Task<Void, Never>?
