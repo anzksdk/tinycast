@@ -36,7 +36,9 @@ final class UpdateCheckStore {
     @ObservationIgnored private var pump: Task<Void, Never>?
 
     init(
-        channel: ReleaseChannel = ReleaseChannel(bundleID: Bundle.main.bundleIdentifier),
+        channel: ReleaseChannel = ReleaseChannel(
+            bundleID: Bundle.main.bundleIdentifier,
+            updatesDisabled: Bundle.main.object(forInfoDictionaryKey: "TinycastDisableUpdates") as? Bool == true),
         runningVersion: AppVersion? = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
             .flatMap(AppVersion.init),
         fileURL: URL = AppPaths.caches().appendingPathComponent("update-check.json"),

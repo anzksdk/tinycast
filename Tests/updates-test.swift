@@ -103,6 +103,7 @@ struct UpdatesTests {
         let stable = ReleaseChannel(bundleID: "com.tinycast.app")
         let beta = ReleaseChannel(bundleID: "com.tinycast.app.beta")
         let dev = ReleaseChannel(bundleID: "com.tinycast.app.dev")
+        let replacement = ReleaseChannel(bundleID: "com.tinycast.app", updatesDisabled: true)
 
         expect(stable == .stable, "the stable bundle id is the stable channel")
         expect(beta == .beta, "the beta bundle id is the beta channel")
@@ -111,6 +112,8 @@ struct UpdatesTests {
 
         expect(stable.updatesItself && beta.updatesItself, "both shipped channels update")
         expect(!dev.updatesItself, "a local build does not update itself")
+        expect(!replacement.updatesItself, "a personal replacement keeps stable data without upstream updates")
+        expect(!replacement.accepts(prerelease: false), "the replacement never offers an official stable build")
 
         expect(stable.accepts(prerelease: false), "stable takes releases")
         expect(!stable.accepts(prerelease: true), "stable never crosses to a prerelease")

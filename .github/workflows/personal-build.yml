@@ -1,0 +1,45 @@
+name: Personal replacement build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.repository == 'anzksdk/tinycast'
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify update policy
+        run: |
+          ./Scripts/run-tests.sh updates-test
+          ./Scripts/run-tests.sh update-check-test
+      - name: Build release with the stable data identity
+        run: |
+          xcodebuild -project Tinycast.xcodeproj -scheme Tinycast -configuration Release \
+            -derivedDataPath build/Replacement CODE_SIGNING_ALLOWED=NO \
+            MARKETING_VERSION=0.11.19 CURRENT_PROJECT_VERSION=1000001 build
+      - name: Mark and sign the personal build
+        run: |
+          APP_PATH='build/Replacement/Build/Products/Release/Tinycast.app'
+          /usr/libexec/PlistBuddy -c 'Add :TinycastDisableUpdates bool true' "$APP_PATH/Contents/Info.plist"
+          /usr/libexec/PlistBuddy -c 'Add :TinycastPersonalBuild string boyin.1' "$APP_PATH/Contents/Info.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP_PATH/Contents/Info.plist")" = 'com.tinycast.app'
+          codesign --force --sign - --options runtime "$APP_PATH/Contents/Helpers/ClipboardTextHelper"
+          codesign --force --sign - --options runtime "$APP_PATH/Contents/Helpers/FileIndexHelper"
+          codesign --force --sign - --options runtime "$APP_PATH/Contents/Helpers/Tinycast Dictation.app"
+          codesign --force --sign - --options runtime --entitlements Tinycast/Tinycast.entitlements "$APP_PATH"
+          ./Scripts/verify-signature.sh "$APP_PATH"
+          ditto -c -k --keepParent "$APP_PATH" build/Tinycast-0.11.19-boyin.1-arm64.zip
+          shasum -a 256 build/Tinycast-0.11.19-boyin.1-arm64.zip > build/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Tinycast-Replacement-${{ github.sha }}
+          path: |
+            build/Tinycast-0.11.19-boyin.1-arm64.zip
+            build/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30

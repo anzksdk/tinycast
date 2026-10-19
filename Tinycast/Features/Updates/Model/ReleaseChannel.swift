@@ -7,7 +7,11 @@ enum ReleaseChannel: Sendable {
     /// A local build. It has no release stream, and never updates itself.
     case development
 
-    init(bundleID: String?) {
+    init(bundleID: String?, updatesDisabled: Bool = false) {
+        if updatesDisabled {
+            self = .development
+            return
+        }
         switch bundleID {
         case "com.tinycast.app": self = .stable
         case "com.tinycast.app.beta": self = .beta

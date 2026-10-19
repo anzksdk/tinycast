@@ -7,6 +7,10 @@
 > and [verification checklist](docs/testing.md#numbered-result-activation-personal-fork).
 > This behavior is intentionally maintained outside upstream ([upstream discussion](https://github.com/abue-ammar/tinycast/issues/1357)).
 
+To replace an official stable installation while keeping its setup, use the personal **Tinycast.app**
+package and follow [the replacement instructions](docs/personal-replacement.md). **Tinycast Dev.app**
+is an isolated development build and does not use your stable settings.
+
 
 **A tiny, fully native macOS launcher. One hotkey, everything you reach for all day, under 100 MB of
 RAM.**

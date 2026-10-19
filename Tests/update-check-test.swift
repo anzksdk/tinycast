@@ -9,6 +9,7 @@ struct UpdateCheckTests {
     static func main() async throws {
         try await stopsBeforeFirstCheck()
         try await cancelsAndRestarts()
+        try await replacementNeverChecks()
         print("\(passes) passed, \(failures) failed")
         if failures > 0 { exit(1) }
     }
@@ -93,6 +94,21 @@ struct UpdateCheckTests {
             "latest": try JSONSerialization.jsonObject(with: JSONEncoder().encode(release))
         ]
         try JSONSerialization.data(withJSONObject: cache).write(to: file)
+    }
+
+    static func replacementNeverChecks() async throws {
+        let file = makeFile()
+        defer { try? FileManager.default.removeItem(at: file) }
+        let fixture = FetchFixture()
+        let store = UpdateCheckStore(
+            channel: ReleaseChannel(bundleID: "com.tinycast.app", updatesDisabled: true),
+            runningVersion: AppVersion("0.11.19"), fileURL: file,
+            fetch: { await fixture.fetch() })
+        store.start(after: .zero)
+        let checked = await store.check()
+        await Task.yield()
+        expect(!checked && fixture.requests == 0, "replacement never fetches official updates")
+        expect(!FileManager.default.fileExists(atPath: file.path), "replacement leaves the update cache alone")
     }
 
     static func makeStore(file: URL, fixture: FetchFixture) -> UpdateCheckStore {
