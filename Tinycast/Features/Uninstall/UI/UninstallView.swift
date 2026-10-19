@@ -111,6 +111,7 @@ private struct UninstallRow: View {
                 .foregroundStyle(.secondary)
             FileIconView(path: candidate.path)
                 .frame(width: metrics.size.resultRowIcon, height: metrics.size.resultRowIcon)
+            ResultNumberHint(id: candidate.id)
         }
         .opacity(candidate.isLocked ? 0.55 : 1)
         .padding(.horizontal, metrics.spacing.md)

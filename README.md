@@ -1,5 +1,13 @@
 # Tinycast
 
+> Personal fork: **⌘1–⌘0 activates displayed results across palette lists**, including filtered
+> launcher results and unpinned clipboard history. Hold ⌘ for number hints. Compact mode retains
+> favorites; Emoji keeps ⌘0 for zoom; Uninstall numbers only toggle files; forms keep their own keys.
+> Extension-defined shortcuts take priority. See [the implementation notes](docs/features/palette.md)
+> and [verification checklist](docs/testing.md#numbered-result-activation-personal-fork).
+> This behavior is intentionally maintained outside upstream ([upstream discussion](https://github.com/abue-ammar/tinycast/issues/1357)).
+
+
 **A tiny, fully native macOS launcher. One hotkey, everything you reach for all day, under 100 MB of
 RAM.**
 

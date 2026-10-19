@@ -73,6 +73,7 @@ struct CustomCommandList: View {
                         }
                     }
                 }
+                ResultNumberHint(id: command.id)
             }
             .padding(.horizontal, metrics.spacing.md)
             .padding(.vertical, metrics.spacing.sm)

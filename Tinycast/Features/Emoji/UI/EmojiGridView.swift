@@ -244,6 +244,9 @@ private struct EmojiGridRowView: View {
                         hovered: column == hoveredColumn,
                         size: cellSize
                     )
+                    .overlay(alignment: .bottom) {
+                        ResultNumberHint(id: row[column].id)
+                    }
                 } else {
                     // Empty trailing slots keep a partial last row aligned with the full rows.
                     Color.clear.frame(width: cellSize, height: cellSize)

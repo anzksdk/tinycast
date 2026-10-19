@@ -106,6 +106,7 @@ private struct RoomRowView: View {
                     if selected { KeyCapChip(text: "⇥", style: .outline) }
                 }
             }
+            ResultNumberHint(id: row.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

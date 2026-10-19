@@ -548,10 +548,14 @@ handled in `PalettePanel.sendEvent` before `super` hands the event to the respon
 
 - **A bare backspace** — the field editor consumes it as an edit (`onBareBackspace`).
 - **Chords with no main menu item** — ⌘, and ⌘w, which an app with a menu bar would never see here.
-- **The physical number-row slots.** `FavoriteSlots` matches ⌘1…⌘0 by key code before fixed command
-  chords, then publishes the resolved position to the active screen. Only the launcher and clipboard
-  screens intercept these slots; other screens keep their own ⌘-number shortcuts. The launcher's
-  compact visibility setting is visual only and does not disable its favorite slots.
+- **The physical number-row slots.** `PalettePanel` resolves ⌘1…⌘0 through `NumberSlots` and
+  synchronously asks `RootPaletteView` to handle the slot. Repeats, extra modifiers, IME composition,
+  open menus and native control lists cannot activate a numbered row. The active `PaletteScreen`
+  supplies `numberSlots`, and `activateNumbered(at:)` defaults to that row's primary action.
+  The compact launcher keeps favorites, while expanded lists follow their displayed results.
+  Forms and Quick AI do not opt in. Emoji reserves ⌘0 for zoom. Uninstall toggles the addressed
+  candidate rather than running the session-wide uninstall action. An extension action's declared
+  ⌘digit shortcut takes precedence, and its conflicting row hint is suppressed.
 - **Chords AppKit has already bound to a selector.** `⌘.` is the one that bites: AppKit binds it to
   `cancelOperation:` alongside Escape, so `interpretKeyEvents` hands it to the field editor and
   `onKeyPress(keys: ["."])` never fires. Pin (⌘.) therefore arrives through `onCommandShortcut`,

@@ -142,6 +142,13 @@ struct ExtensionCommandScreen: PaletteScreen {
 
     func secondary(at selection: Int) -> Bool { false }
 
+    func perform(_ shortcut: PaletteShortcut, at selection: Int) -> Bool {
+        guard case .numberSlot(let index) = shortcut, let digit = NumberSlots.digit(at: index) else {
+            return false
+        }
+        return dispatchShortcut(key: KeyEquivalent(digit), modifiers: .command, at: selection)
+    }
+
     /// The `searchBarAccessory` dropdown; an empty one states and opens nothing, so it is none.
     var searchAccessory: ExtensionSearchAccessory? {
         guard let accessory = ExtensionSearchAccessory(node: screen.searchBarAccessory),

@@ -24,19 +24,14 @@ it.
 
 ## Launching by number
 
-<kbd>⌘</kbd><kbd>1</kbd> opens your first favorite, <kbd>⌘</kbd><kbd>2</kbd> the second, and so on
-up to <kbd>⌘</kbd><kbd>9</kbd>. <kbd>⌘</kbd><kbd>0</kbd> opens the tenth. Favorites after the tenth
-don't get a number, so move one up if you want a key for it.
+In the expanded launcher, <kbd>⌘</kbd><kbd>1</kbd> to <kbd>⌘</kbd><kbd>9</kbd>, then
+<kbd>⌘</kbd><kbd>0</kbd>, open the first ten results in displayed order. This also works after
+searching. With nothing typed, favorites still come first. The timed meeting card has no number.
 
-The numbers follow key positions, so they work the same on any keyboard layout.
+Hold <kbd>⌘</kbd> briefly to see each result's number. The shortcuts follow physical key positions.
+A command with an unfilled required argument focuses that field instead of running.
 
-Hold <kbd>⌘</kbd> for a moment and each numbered favorite shows its number on the right side of its
-row.
-
-The numbers only work while the Favorites section is visible, which means with nothing typed. Once
-you start typing, the list shows ranked results, so a position number wouldn't be meaningful.
-
-In the clipboard screen, the same number keys paste your pinned entries instead.
+In the clipboard, the same keys act on the first ten visible results, pinned or not.
 
 ## In compact mode
 

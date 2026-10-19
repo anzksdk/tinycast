@@ -37,6 +37,7 @@ struct EmojiScreen: PaletteScreen {
 
     /// Flat grid order across sections — what the selection indexes.
     var rows: [EmojiEntry] { sections.flatMap(\.entries) }
+    var numberSlots: NumberSlots? { NumberSlots(count: 9) }
 
     var primaryActionTitle: String { vm.pasteTarget?.pasteTitle ?? String(localized: "Paste") }
 

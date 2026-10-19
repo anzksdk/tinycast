@@ -16,7 +16,7 @@ struct ClipboardTests {
         editHonoursTheCaptureLimit()
         pinsSurvivePruningAndTheWindow()
         pinsLeadFilteredSearches()
-        pinnedSlotResolutionUsesVisiblePins()
+        numberSlotsUseAllVisibleResults()
         landingSkipsThePins()
         textFormClassification()
         colorParsing()
@@ -248,40 +248,23 @@ struct ClipboardTests {
     }
 
     /// Slot picks are taken from the visible pinned block after query/filter, not from all pins.
-    static func pinnedSlotResolutionUsesVisiblePins() {
+    static func numberSlotsUseAllVisibleResults() {
         withStore { store, _ in
-            store.addText("alpha one", sourceBundleID: nil)
-            store.addText("beta two", sourceBundleID: nil)
-            store.addText("beta three", sourceBundleID: nil)
-            store.addText("plain text", sourceBundleID: nil)
-
-            store.togglePinned(item(store, "alpha one"))
-            store.togglePinned(item(store, "beta two"))
-            store.togglePinned(item(store, "beta three"))
-
-            expect(
-                store.pinnedItem(at: 0, in: "", filter: .all)?.text == "alpha one",
-                "slot 1 maps to the first pinned row")
-            expect(
-                store.pinnedItem(at: 2, in: "", filter: .all)?.text == "beta three",
-                "slot 3 maps to the third pinned row")
-            expect(
-                store.pinnedItem(at: 3, in: "", filter: .all) == nil,
-                "missing pinned slot returns nil")
-
-            expect(
-                store.pinnedItem(at: 0, in: "beta", filter: .all)?.text == "beta two",
-                "query narrows the pinned block before slot mapping")
-            expect(
-                store.pinnedItem(at: 1, in: "beta", filter: .all)?.text == "beta three",
-                "slot mapping follows visible pinned order under query")
-            expect(
-                store.pinnedItem(at: 2, in: "beta", filter: .all) == nil,
-                "query can remove pinned slots from reach")
-
-            expect(
-                store.pinnedItem(at: 0, in: "", filter: .link) == nil,
-                "filter applies before pinned slot mapping")
+            store.addText("alpha pin", sourceBundleID: nil)
+            store.addText("beta pin", sourceBundleID: nil)
+            store.addText("beta recent", sourceBundleID: nil)
+            store.togglePinned(item(store, "alpha pin"))
+            store.togglePinned(item(store, "beta pin"))
+            @MainActor func result(_ slot: Int, query: String = "", filter: ClipboardFilter = .all) -> String? {
+                let rows = store.search(query, filter: filter)
+                return NumberSlots().selection(at: slot, rowCount: rows.count).flatMap { rows[$0].text }
+            }
+            expect(result(0) == "alpha pin", "pins keep their displayed position")
+            expect(result(2) == "beta recent", "ordinary history also receives a number")
+            expect(result(0, query: "beta") == "beta pin", "search applies before numbering")
+            expect(result(1, query: "beta") == "beta recent", "filtered ordinary result is reachable")
+            expect(result(2, query: "beta") == nil, "missing slots do not fall back")
+            expect(result(0, filter: .link) == nil, "type filtering applies before numbering")
         }
     }
 

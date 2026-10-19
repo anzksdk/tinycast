@@ -15,6 +15,7 @@ struct AIScreen: PaletteScreen {
     }
 
     let rows = [Row()]
+    var numberSlots: NumberSlots? { nil }
 
     var primaryActionTitle: String {
         chat.isStreaming ? String(localized: "Stop") : String(localized: "Send")

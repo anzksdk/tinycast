@@ -25,6 +25,13 @@ Shortcuts follow key positions, so they work the same on any keyboard layout or 
 | <kbd>⌘</kbd><kbd>,</kbd>                            | Settings                                               |
 | <kbd>⌘</kbd><kbd>W</kbd>                            | Close the window                                       |
 
+Number shortcuts also work in File Search, Snippets, Quicklinks, Calculator History, Chat History,
+Schedule, Custom Commands, Menu Search, Switch Windows, Rooms and extension lists/grids.
+They follow the current results after filtering; headings do not count. Missing numbers do nothing.
+Emoji supports <kbd>⌘</kbd><kbd>1</kbd> through <kbd>⌘</kbd><kbd>9</kbd>, reserving
+<kbd>⌘</kbd><kbd>0</kbd> for Actual Size. In Uninstall, a number toggles that file's checkbox.
+Forms and the AI composer keep their own keys, and extension-defined number shortcuts take priority.
+
 ## Launcher
 
 | Key                                                 | Does                                    |
@@ -33,7 +40,7 @@ Shortcuts follow key positions, so they work the same on any keyboard layout or 
 | <kbd>⌘</kbd><kbd>return</kbd>                       | Show in Finder (app, setting, snippet)  |
 | <kbd>⇧</kbd><kbd>⌘</kbd><kbd>F</kbd>                | Add to / Remove from Favorites          |
 | <kbd>⌥</kbd><kbd>⌘</kbd><kbd>↑</kbd> / <kbd>↓</kbd> | Move a favorite up or down              |
-| <kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>0</kbd> | Open favorite 1 to 10                   |
+| <kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>0</kbd> | Open result 1 to 10; compact mode opens favorites                   |
 | <kbd>⇧</kbd><kbd>⌘</kbd><kbd>H</kbd>                | Hide from Search                        |
 | <kbd>⌘</kbd><kbd>R</kbd>                            | Restart Application (running apps only) |
 | <kbd>⌃</kbd><kbd>⇧</kbd><kbd>Q</kbd>                | Quit Application (running apps only)    |
@@ -76,7 +83,7 @@ Shortcuts follow key positions, so they work the same on any keyboard layout or 
 | <kbd>⌘</kbd><kbd>.</kbd>                            | Pin / Unpin Entry          |
 | <kbd>⌘</kbd><kbd>E</kbd>                            | Edit Entry                 |
 | <kbd>⌘</kbd><kbd>F</kbd>                            | Show in Finder             |
-| <kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>0</kbd> | Paste pinned entry 1 to 10 |
+| <kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>0</kbd> | Activate visible result 1 to 10 |
 | <kbd>⌃</kbd><kbd>X</kbd>                            | Delete Entry               |
 | <kbd>⌃</kbd><kbd>⇧</kbd><kbd>X</kbd>                | Delete All Entries         |
 

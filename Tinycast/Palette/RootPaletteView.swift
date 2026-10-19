@@ -42,6 +42,15 @@ struct RootPaletteView: View {
     @State private var hostWindow: NSWindow?
     /// The pending scroll request; modes are exclusive, so one piece of state serves all.
     @State private var scroll = ScrollIntent(kind: .top)
+    @State private var numberArgumentFocus: NumberArgumentFocus?
+
+    private struct NumberArgumentFocus: Equatable {
+        let mode: PaletteMode
+        let query: String
+        let resetToken: UUID
+        let selection: Int
+        let rowID: AnyHashable
+    }
 
     /// Compact vs. full; the source of truth is on `AppCore`, so the two can't disagree.
     private var isCollapsed: Bool { core.paletteCoordinator.paletteIsCollapsed }
@@ -316,6 +325,7 @@ struct RootPaletteView: View {
                         Color.clear
                     } else {
                         screen.body(selection: sel, scroll: scroll)
+                            .environment(\.numberSlotLabels, numberLabels(for: screen))
                     }
                 }
                 .safeAreaInset(edge: .top, spacing: 0) { header }
@@ -462,9 +472,7 @@ struct RootPaletteView: View {
                 // Next turn, past the refocus that selects all, so typing extends the answer.
                 Task { @MainActor in (hostWindow as? PalettePanel)?.moveFieldEditorCaretToEnd() }
             }
-            .onChange(of: vm.favoriteSlotToken) {
-                if let index = vm.favoriteSlotIndex { performShortcut(.favoriteSlot(index)) }
-            }
+            .task(id: numberArgumentFocus) { await focusNumberedArgument() }
             // One optional makes "exactly one menu" structural; this only presents it.
             .onChange(of: openMenu) {
                 guard menuOpen else { return }
@@ -476,6 +484,8 @@ struct RootPaletteView: View {
             .onDisappear {
                 menuPanel.hide()
                 (hostWindow as? PalettePanel)?.onHeaderFieldBoundaryArrow = nil
+                (hostWindow as? PalettePanel)?.onNumberSlot = nil
+                numberArgumentFocus = nil
             }
             // The first show builds this view after `prepare`, so no handler saw that reset.
             .onAppear {
@@ -1261,6 +1271,7 @@ struct RootPaletteView: View {
 
     /// Every reset lands here, so handlers that fire together agree in whatever order they run.
     private func land(restoringSelection: Bool = false) {
+        numberArgumentFocus = nil
         let restored = restoringSelection ? vm.restoredSelection : nil
         let landing = restored.map { min($0, max(screen.rows.count - 1, 0)) } ?? screen.landingSelection
         vm.selection = landing
@@ -1344,6 +1355,73 @@ struct RootPaletteView: View {
         _ = screen.perform(shortcut, at: selection(in: screen))
     }
 
+    private func activateNumberSlot(_ index: Int) -> Bool {
+        guard !menuOpen, !vm.isControlListOpen, !vm.isComposing, !vm.isEditingField,
+            !core.isDimmingPaletteForDialog
+        else { return false }
+        let screen = screen
+        if isCollapsed { return screen.perform(.numberSlot(index), at: 0) }
+        guard let slots = screen.numberSlots, index < slots.count else { return false }
+        if screen.perform(.numberSlot(index), at: selection(in: screen)) { return true }
+        let rows = screen.rows
+        guard let selected = slots.selection(at: index, rowCount: rows.count),
+            screen.hasPrimaryAction(at: selected), screen.isPrimaryActionEnabled(at: selected)
+        else { return true }
+        let previous = vm.selection
+        numberArgumentFocus = nil
+        returnFocusToSearchField()
+        vm.selection = selected
+        scroll = ScrollIntent(kind: .follow)
+        if let field = screen.headerAccessory(
+            at: selected, focus: $argumentFocused)?.firstIncompleteField
+        {
+            if previous == selected {
+                argumentFocused = field
+                searchFocused = false
+            } else {
+                numberArgumentFocus = NumberArgumentFocus(
+                    mode: vm.mode, query: vm.query, resetToken: vm.resetToken,
+                    selection: selected, rowID: AnyHashable(rows[selected].id))
+            }
+        } else {
+            screen.activateNumbered(at: selected)
+        }
+        return true
+    }
+
+    private func numberLabels<S: PaletteScreen>(for screen: S) -> [String: Character] {
+        guard let slots = screen.numberSlots else { return [:] }
+        let rows = screen.rows
+        var labels: [String: Character] = [:]
+        for slot in NumberSlots.digits.indices {
+            guard let row = slots.selection(at: slot, rowCount: rows.count),
+                let digit = slots.digit(forRow: row)
+            else { continue }
+            labels[String(reflecting: rows[row].id)] = digit
+        }
+        return labels
+    }
+
+    private func focusNumberedArgument() async {
+        guard let request = numberArgumentFocus else { return }
+        await Task.yield()
+        guard !Task.isCancelled, numberArgumentFocus == request,
+            vm.mode == request.mode, vm.query == request.query, vm.resetToken == request.resetToken,
+            vm.selection == request.selection, vm.isVisible, !isCollapsed,
+            !menuOpen, !vm.isControlListOpen, !vm.isComposing
+        else { return }
+        let screen = screen
+        let rows = screen.rows
+        guard rows.indices.contains(request.selection),
+            AnyHashable(rows[request.selection].id) == request.rowID,
+            let field = screen.headerAccessory(
+                at: request.selection, focus: $argumentFocused)?.firstIncompleteField
+        else { return }
+        argumentFocused = field
+        searchFocused = false
+        numberArgumentFocus = nil
+    }
+
     /// A ring hop leaves a step back — except the hop closing the ring on the launcher, its root.
     private func cycleMode() {
         switch PaletteTabAction.resolve(
@@ -1379,6 +1457,7 @@ struct RootPaletteView: View {
     /// Right at an inline field's end and Left at its start continue the same ring as Tab.
     private func installHeaderArrowHandler(in window: NSWindow?) {
         guard let panel = window as? PalettePanel else { return }
+        panel.onNumberSlot = { index in activateNumberSlot(index) }
         panel.onHeaderFieldBoundaryArrow = { boundary in
             guard !menuOpen, !vm.isControlListOpen, !isCollapsed,
                 let accessory = headerAccessory, !accessory.fieldNames.isEmpty

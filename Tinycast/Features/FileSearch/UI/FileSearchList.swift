@@ -60,13 +60,18 @@ struct FileSearchRow: View {
     let result: FileSearchResult
     let selected: Bool
     let showsLocation: Bool
+    let numberedID: String?
     @State private var image: NSImage?
     @State private var hovered = false
 
-    init(result: FileSearchResult, selected: Bool, showsLocation: Bool = false) {
+    init(
+        result: FileSearchResult, selected: Bool, showsLocation: Bool = false,
+        numberedID: String? = nil
+    ) {
         self.result = result
         self.selected = selected
         self.showsLocation = showsLocation
+        self.numberedID = numberedID
         _image = State(initialValue: IconCache.cachedFitted(forFile: result.id))
     }
 
@@ -114,6 +119,7 @@ struct FileSearchRow: View {
                     .font(metrics.typography.rowTrailing)
                     .foregroundStyle(.secondary)
             }
+            ResultNumberHint(id: numberedID ?? result.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

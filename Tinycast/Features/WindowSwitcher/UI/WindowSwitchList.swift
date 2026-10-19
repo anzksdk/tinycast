@@ -74,6 +74,7 @@ private struct WindowSwitchRow: View {
                 .font(metrics.typography.rowTrailing)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+            ResultNumberHint(id: entry.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

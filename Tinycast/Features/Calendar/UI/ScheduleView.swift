@@ -90,6 +90,7 @@ private struct MeetingRow: View {
                 .lineLimit(1)
             Spacer(minLength: metrics.spacing.md)
             MeetingTiming(meeting: meeting, now: now)
+            ResultNumberHint(id: meeting.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

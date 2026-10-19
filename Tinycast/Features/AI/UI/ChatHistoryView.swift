@@ -115,6 +115,7 @@ private struct ChatHistoryRow: View {
             Text(conversation.updatedAt.formatted(date: .omitted, time: .shortened))
                 .font(metrics.typography.keyCap)
                 .foregroundStyle(Theme.Colors.textTertiary)
+            ResultNumberHint(id: conversation.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

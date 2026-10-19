@@ -39,6 +39,10 @@ struct UninstallScreen: PaletteScreen {
         core.uninstallCoordinator.performUninstall()
     }
 
+    func activateNumbered(at selection: Int) {
+        _ = secondary(at: selection)
+    }
+
     func secondary(at selection: Int) -> Bool {
         guard let candidate = candidate(at: selection), !candidate.isLocked else { return false }
         session.toggle(candidate.id)

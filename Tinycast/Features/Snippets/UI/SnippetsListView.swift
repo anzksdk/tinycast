@@ -82,6 +82,7 @@ private struct SnippetRow: View {
                     }
                 }
             }
+            ResultNumberHint(id: record.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

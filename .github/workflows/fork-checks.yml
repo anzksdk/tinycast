@@ -29,12 +29,20 @@ jobs:
       - name: Test
         run: ./Scripts/run-tests.sh
       - name: Lint
+        if: ${{ !cancelled() }}
         run: ./Scripts/lint.sh
       - name: Check model imports
+        if: ${{ !cancelled() }}
         run: |
           if grep -rlnE 'import (AppKit|SwiftUI|Cocoa)' Tinycast/Features/*/Model/; then
             exit 1
           fi
+  build:
+    if: github.repository == 'anzksdk/tinycast'
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
       - name: Build isolated development app
         run: |
           xcodebuild -project Tinycast.xcodeproj -scheme Tinycast -configuration Debug \

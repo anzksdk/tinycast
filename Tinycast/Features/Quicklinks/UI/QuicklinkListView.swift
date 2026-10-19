@@ -126,6 +126,7 @@ private struct QuicklinkRow: View {
                     }
                 }
             }
+            ResultNumberHint(id: quicklink.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

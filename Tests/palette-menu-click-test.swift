@@ -6,6 +6,7 @@ final class PaletteState {
     var menuOpen = false { didSet { onMenuOpenChanged?(menuOpen) } }
     var onMenuOpenChanged: ((Bool) -> Void)?
     var isComposing = false
+    var isControlListOpen = false
     var searchFieldFrame = CGRect.zero
     var mode = PaletteMode.launcher
 
@@ -73,6 +74,7 @@ struct PaletteMenuClickTests {
         panel.becomeKey()
         panel.displayIfNeeded()
         defer { panel.orderOut(nil) }
+        checkNumberSlots(panel: panel, state: state)
 
         func send(_ type: NSEvent.EventType, clicks: Int = 1) {
             guard
@@ -209,5 +211,48 @@ struct PaletteMenuClickTests {
     private static func textField(in view: NSView) -> NSTextField? {
         if let field = view as? NSTextField { return field }
         return view.subviews.lazy.compactMap { textField(in: $0) }.first
+    }
+
+    private static func checkNumberSlots(panel: PalettePanel, state: PaletteState) {
+        var slots: [Int] = []
+        panel.onNumberSlot = { slots.append($0); return true }
+        panel.onCommandShortcut = { _ in true }
+        func press(_ code: UInt16, flags: NSEvent.ModifierFlags = .command, repeatKey: Bool = false) {
+            guard let event = NSEvent.keyEvent(
+                with: .keyDown, location: .zero, modifierFlags: flags,
+                timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: panel.windowNumber,
+                context: nil, characters: "&", charactersIgnoringModifiers: "&",
+                isARepeat: repeatKey, keyCode: code)
+            else { check(false, "number key creation"); return }
+            panel.sendEvent(event)
+        }
+        press(18)
+        press(29)
+        check(slots == [0, 9], "physical keys work independently of typed characters")
+        press(19, flags: [.command, .shift])
+        press(19, flags: [.command, .option])
+        press(19, flags: [.command, .control])
+        press(19, repeatKey: true)
+        state.menuOpen = true
+        press(19)
+        state.menuOpen = false
+        state.isControlListOpen = true
+        press(19)
+        state.isControlListOpen = false
+        check(slots == [0, 9], "modifiers, repeats and menus cannot activate numbered rows")
+        let editor = NSTextView(frame: .zero)
+        panel.contentView?.addSubview(editor)
+        panel.makeFirstResponder(editor)
+        editor.setMarkedText("中", selectedRange: NSRange(location: 1, length: 0),
+                             replacementRange: NSRange(location: NSNotFound, length: 0))
+        press(19)
+        check(slots == [0, 9], "native IME composition suppresses numbered activation")
+        editor.unmarkText()
+        press(19)
+        check(slots == [0, 9, 1], "numbered activation resumes after composition")
+        panel.makeFirstResponder(nil)
+        editor.removeFromSuperview()
+        panel.onNumberSlot = nil
+        panel.onCommandShortcut = nil
     }
 }

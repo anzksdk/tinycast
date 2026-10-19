@@ -61,7 +61,8 @@ struct ExtensionListView: View {
     }
 
     private var rowList: some View {
-        ScrollViewReader { proxy in
+        let slots = numberSlots
+        return ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(screen.rows) { row in
@@ -74,7 +75,8 @@ struct ExtensionListView: View {
                         case .item(let item):
                             ExtensionItemRow(
                                 node: item.node, selected: item.index == selection,
-                                assetsPath: assetsPath, compact: screen.showsDetail
+                                assetsPath: assetsPath, compact: screen.showsDetail,
+                                numberSlot: slots[item.index]
                             )
                             .contentShape(Rectangle())
                             .onTapGesture {
@@ -103,6 +105,17 @@ struct ExtensionListView: View {
         screen.items.indices.contains(selection) ? screen.items[selection].id : nil
     }
 
+    private var numberSlots: [Int: Character] {
+        let actions = ExtensionScreen.actions(in: screen.actionPanel(forItemAt: selection))
+        var slots: [Int: Character] = [:]
+        for (index, digit) in NumberSlots.digits.enumerated() where index < screen.items.count {
+            guard !actions.contains(where: { $0.matches(key: KeyEquivalent(digit), modifiers: .command) })
+            else { continue }
+            slots[index] = digit
+        }
+        return slots
+    }
+
     /// Measured once for the whole grid: a tile's own `GeometryReader` would cost a pass per cell.
     private func gridBody(layout: ExtensionGridLayout) -> some View {
         GeometryReader { geometry in
@@ -115,7 +128,8 @@ struct ExtensionListView: View {
     }
 
     private func grid(layout: ExtensionGridLayout, tileWidth: Double) -> some View {
-        ScrollViewReader { proxy in
+        let slots = numberSlots
+        return ScrollViewReader { proxy in
             ScrollView {
                 LazyVGrid(
                     columns: Array(
@@ -128,6 +142,9 @@ struct ExtensionListView: View {
                             node: item.node, selected: item.index == selection,
                             assetsPath: assetsPath, layout: layout, width: tileWidth
                         )
+                        .overlay(alignment: .topTrailing) {
+                            ExtensionNumberHint(digit: slots[item.index]).padding(metrics.spacing.sm)
+                        }
                         .contentShape(Rectangle())
                         .onTapGesture {
                             onSelect(item.index)
@@ -172,6 +189,7 @@ private struct ExtensionItemRow: View {
     let selected: Bool
     let assetsPath: String?
     let compact: Bool
+    let numberSlot: Character?
     @State private var hovered = false
 
     private var fill: Color {
@@ -204,6 +222,7 @@ private struct ExtensionItemRow: View {
                 accessories: node.array("accessories"), assetsPath: assetsPath
             )
             .fixedSize(horizontal: true, vertical: false)
+            ExtensionNumberHint(digit: numberSlot)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)
@@ -211,6 +230,24 @@ private struct ExtensionItemRow: View {
             RoundedRectangle(cornerRadius: metrics.radius.row, style: .continuous).fill(fill)
         )
         .armedHover($hovered)
+    }
+}
+
+private struct ExtensionNumberHint: View {
+    @Environment(PaletteState.self) private var palette
+    @Environment(\.metrics) private var metrics
+    let digit: Character?
+
+    var body: some View {
+        if palette.commandHeld, !palette.menuOpen, let digit {
+            HStack(spacing: metrics.spacing.xxs) {
+                KeyCapChip(text: "⌘", style: .outline)
+                KeyCapChip(text: String(digit), style: .outline)
+            }
+            .allowsHitTesting(false)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(verbatim: "⌘\(digit)"))
+        }
     }
 }
 

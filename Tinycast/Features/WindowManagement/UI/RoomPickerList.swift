@@ -99,6 +99,7 @@ private struct RoomPickerRowView: View {
                 .font(metrics.typography.rowTrailing)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+            ResultNumberHint(id: row.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

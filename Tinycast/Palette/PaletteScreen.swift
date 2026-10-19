@@ -84,6 +84,7 @@ private extension MenuPanelCorner {
     var actsWithoutRows: Bool { get }
     /// Where an open, a new query or a new filter puts the highlight; past row 0 it is centred.
     var landingSelection: Int { get }
+    var numberSlots: NumberSlots? { get }
 
     /// False when the selection can't be acted on, which hides the footer pill and swallows ⌘K.
     func hasPrimaryAction(at selection: Int) -> Bool
@@ -104,6 +105,7 @@ private extension MenuPanelCorner {
         onActivate: @escaping (Int) -> Void
     ) -> PaletteMenuContent?
     func activate(at selection: Int)
+    func activateNumbered(at selection: Int)
     /// ⌘↵. False when the selection has no secondary action, leaving the key unhandled.
     func secondary(at selection: Int) -> Bool
     /// ⌃⌘↵. False when the selection has no third action, leaving the chord to `secondary`.
@@ -129,6 +131,8 @@ extension PaletteScreen {
     var hidesSearchField: Bool { false }
     var actsWithoutRows: Bool { false }
     var landingSelection: Int { 0 }
+    var numberSlots: NumberSlots? { hidesSearchField || actsWithoutRows ? nil : NumberSlots() }
+    func activateNumbered(at selection: Int) { activate(at: selection) }
     func ownsVerticalKeys(at selection: Int) -> Bool { false }
     func tabTarget(from selection: Int, backwards: Bool) -> Int? { nil }
     func tab(at selection: Int, backwards: Bool) -> Bool { false }

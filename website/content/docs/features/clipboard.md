@@ -30,7 +30,7 @@ The footer shows where a paste will go, like "Paste to Notes".
 | Pin / Unpin Entry          | <kbd>⌘</kbd><kbd>.</kbd>                            |
 | Edit Entry                 | <kbd>⌘</kbd><kbd>E</kbd>                            |
 | Show in Finder             | <kbd>⌘</kbd><kbd>F</kbd>                            |
-| Paste a pinned entry       | <kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>0</kbd> |
+| Activate a visible entry       | <kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>0</kbd> |
 | Delete Entry               | <kbd>⌃</kbd><kbd>X</kbd>                            |
 | Delete All Entries         | <kbd>⌃</kbd><kbd>⇧</kbd><kbd>X</kbd>                |
 
@@ -99,7 +99,7 @@ a common domain ending, so `Safari.app`, `report.pdf` and `index.html` stay text
 - Pinned entries appear in a **Pinned** section at the top, in the order you pinned them.
 - They come first in both the full list and your search results.
 - <kbd>⌘</kbd><kbd>1</kbd> to <kbd>⌘</kbd><kbd>9</kbd>, then <kbd>⌘</kbd><kbd>0</kbd>, act on the
-  first ten visible pinned entries.
+  first ten visible entries, including ordinary history after the pins.
 - **Pinned entries are never removed by the retention limit.** **Clear history** still removes
   everything.
 - Pasting a pinned entry doesn't change its position.

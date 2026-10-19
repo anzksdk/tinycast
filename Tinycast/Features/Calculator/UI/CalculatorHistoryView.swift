@@ -66,6 +66,9 @@ struct CalculatorHistoryList: View {
                             SectionHeader(title: title, isFirst: row.id == rows.first?.id)
                         case .calc(let result):
                             CalculatorCard(result: result, selected: calcSelected)
+                                .overlay(alignment: .topTrailing) {
+                                    ResultNumberHint(id: "calc-card").padding(metrics.spacing.md)
+                                }
                                 .contentShape(Rectangle())
                                 .onTapGesture(perform: onActivateCalc)
                                 .onRightClick(perform: onCalcActions)
@@ -131,6 +134,7 @@ private struct CalcHistoryRow: View {
             Text(format.localized(entry.result))
                 .font(metrics.typography.rowTitle.weight(.semibold))
                 .lineLimit(1)
+            ResultNumberHint(id: entry.id.uuidString)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

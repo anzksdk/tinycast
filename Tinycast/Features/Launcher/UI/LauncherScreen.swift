@@ -328,7 +328,8 @@ struct LauncherScreen: PaletteScreen {
         case .restart: return restart(at: selection)
         case .edit: return editItem(at: selection)
         case .copyPath: return copyQuicklink(at: selection)
-        case .favoriteSlot(let index): return launchFavorite(at: index)
+        case .numberSlot(let index) where core.paletteCoordinator.paletteIsCollapsed:
+            return launchFavorite(at: index)
         case .copyCalculation: return copyCalculation(at: selection)
         case .openInApp, .showDetails:
             guard let meeting = meeting(at: selection) else { return false }
@@ -395,7 +396,9 @@ struct LauncherScreen: PaletteScreen {
         return true
     }
 
-    /// ⌘1–⌘9/⌘0 — launch a favorite by position, in either palette size.
+    var numberSlots: NumberSlots? { NumberSlots(firstRow: meeting == nil ? 0 : 1) }
+
+    /// A timed meeting card must not take a favorite's compact shortcut.
     private func launchFavorite(at index: Int) -> Bool {
         guard let app = pinnedFavorites.dropFirst(index).first else { return false }
         core.launcherCoordinator.launch(app)

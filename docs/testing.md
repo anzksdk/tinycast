@@ -405,6 +405,23 @@ section.
 Run against the **Debug channel** (`Tinycast Dev.app`, `com.tinycast.app.dev`). It has its own prefs,
 caches, TCC grants and login item, so this cannot disturb an installed copy.
 
+### Numbered result activation (personal fork)
+
+- Empty and filtered launcher: ⌘1…⌘0 match the displayed hints, including files and fallbacks.
+  A timed meeting card never shifts favorites; a calculator/color card does consume its displayed slot.
+- Clipboard: pins and ordinary history share the visible order after query/type filtering. The
+  configured default action still applies. A number beyond the current results does nothing.
+- File Search, Snippets, Quicklinks, Calculator History, Chat History, Schedule, Custom Commands,
+  Menu Search, Switch Windows and Rooms: numbered activation follows each screen's primary action.
+- Uninstall numbers toggle a candidate, never the whole-session uninstall action. Locked files stay locked.
+- Emoji's first nine entries are numbered; ⌘0 remains Actual Size. Extension list/grid actions that
+  explicitly bind a number take priority and suppress that result's numbered hint.
+- IME marked text, open menus, open native lists and key repeat never execute a numbered result.
+- A missing required argument focuses the appropriate row's field. Changing query/mode or closing
+  the palette before it mounts must cancel the focus handoff.
+- `favorites-test` guards digit/row mapping, `clipboard-test` checks real filtered store ordering,
+  and `palette-menu-click-test` drives the shipped AppKit panel with native NSEvents and marked text.
+
 ### Core
 
 - Palette hotkey opens the launcher; pressing it again closes it; Escape clears a non-empty query,

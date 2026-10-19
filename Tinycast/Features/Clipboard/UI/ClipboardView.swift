@@ -36,15 +36,13 @@ struct ClipboardList: View {
     private var rows: [Row] {
         var rows: [Row] = []
         var currentTitle: String?
-        var pinnedSlot = 0
-        for item in results {
+        for (index, item) in results.enumerated() {
             let title = item.isPinned ? String(localized: "Pinned") : DateBucket(for: item.createdAt).title
             if title != currentTitle {
                 rows.append(.header(title))
                 currentTitle = title
             }
-            let slot = item.isPinned ? FavoriteSlots.digit(at: pinnedSlot) : nil
-            if item.isPinned { pinnedSlot += 1 }
+            let slot = NumberSlots.digit(at: index)
             rows.append(.item(item, slot: slot))
         }
         return rows

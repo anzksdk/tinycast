@@ -136,6 +136,7 @@ private struct MenuSearchRow: View {
                     }
                 }
             }
+            ResultNumberHint(id: item.id)
         }
         .padding(.horizontal, metrics.spacing.md)
         .padding(.vertical, metrics.spacing.sm)

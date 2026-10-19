@@ -742,28 +742,21 @@ across the list — the top of Favorites on add, the neighbour above the one tha
 
 ### ⌘-digit slots
 
-`FavoriteSlots` (`Launcher/Model/FavoriteSlots.swift`) defines ten local palette slots: **⌘1…⌘9 then
-⌘0**. They match the physical number row, not the character produced by the current keyboard layout,
-so the same positions work on QWERTY and AZERTY. The same slots address pinned Clipboard entries in
-that screen; the eleventh favorite is still listed and reorderable, and simply has no slot.
+`NumberSlots` (`Launcher/Model/NumberSlots.swift`) maps the physical number row to **⌘1…⌘9,
+then ⌘0**. In the expanded launcher these activate the first ten result rows in displayed order,
+including typed search results, files and fallbacks. Headers never consume a slot. A timed meeting
+card is excluded so its arrival cannot take a favorite's number; calculator and color cards count.
 
-Both palette sizes serve the chords from the same prefix, because `paletteIsCollapsed` already
-requires an empty query: **compact implies empty implies `favoriteCount` is the pinned prefix**. That
-is why `LauncherScreen.pinnedFavorites` feeds the strip, the chords and the numbered rows alike,
-rather than the compact bar re-deriving an empty-query order of its own. In compact the strip draws
-the first five; ⌘6–⌘0 still launch favorites it has no room for, and the "…" is a button after them
-rather than a slot, so no favorite loses its digit to the overflow.
+The compact bar retains favorite-only slots, including the favorites beyond its first five icons.
+`LauncherScreen.pinnedFavorites` remains the compact source of truth. The visibility preference only
+hides the icons and does not disable the shortcuts.
 
-Holding ⌘ swaps each numbered row's kind label for its chord. `PalettePanel` publishes the modifier
-into `PaletteState.commandHeld` from `.flagsChanged` and clears it in `resignKey` — not in `prepare`,
-which a re-show that preserves state skips entirely. The flag flips **400 ms after** the press, not
-on it: every ⌘ chord in the palette starts as a ⌘ press, so revealing on the down edge flashed the
-numbering under ⌘↵ and ⌘K. `noteCommandHeld` schedules the reveal and any release cancels it, so a
-chord's own tap never outlives its keystroke while a deliberate hold still lights every row. **`AppRow` observes that flag itself**: reading
-it any higher would attach it to `RootPaletteView`'s body and rebuild the whole palette on every ⌘
-press, where a row-level read re-runs only the handful of rows the `LazyVStack` has realized. The
-digit each row shows is carried on its `Row` case from the section build, so no row searches for its
-own position.
+`PaletteScreen.numberSlots` supplies both the key mapping and the result hint labels. Holding ⌘
+reveals the hints after the existing 400 ms delay. The row observes `commandHeld`, so the whole
+palette does not rebuild on modifier presses. `RootPaletteView` uses the same primary action as
+Return, preserving query text, argument values, error handling and coordinator confirmations.
+An incomplete argument focuses its field; when changing rows, the focus task waits for the fields
+to mount and checks the mode, query, row identity, selection and reset token before applying focus.
 
 ## Hiding one result
 

@@ -116,7 +116,7 @@ struct LauncherList: View {
             rows.append(.header(String(localized: "Favorites")))
             rows.append(
                 contentsOf: favorites.enumerated().map {
-                    .app($1, slot: FavoriteSlots.digit(at: $0))
+                    .app($1, slot: NumberSlots.digit(at: $0))
                 })
         }
         if !meetings.isEmpty {
@@ -170,6 +170,9 @@ struct LauncherList: View {
                                         configureHelp: String(localized: "Configure Fallbacks…"))
                                 case .card(let card):
                                     LeadCardView(card: card, selected: cardSelected)
+                                        .overlay(alignment: .topTrailing) {
+                                            ResultNumberHint(id: row.id).padding(metrics.spacing.md)
+                                        }
                                         .contentShape(Rectangle())
                                         .onTapGesture(perform: onActivateCard)
                                         .onRightClick(perform: onCardActions)
@@ -189,7 +192,7 @@ struct LauncherList: View {
                                 case .file(let result, let index):
                                     FileSearchRow(
                                         result: result, selected: row.id == selectedRowID,
-                                        showsLocation: true
+                                        showsLocation: true, numberedID: row.id
                                     )
                                     .contentShape(Rectangle())
                                     .onRowTap(drag: result.rowDrag(dropped: onDropped)) {
@@ -200,7 +203,7 @@ struct LauncherList: View {
                                 case .fallback(let app, let index):
                                     AppRow(
                                         app: app, selected: row.id == selectedRowID, running: false,
-                                        slot: nil
+                                        slot: nil, numberedID: row.id
                                     )
                                     .contentShape(Rectangle())
                                     .onTapGesture { fallbacks?.onActivate(index) }
@@ -259,6 +262,8 @@ private struct AppRow: View {
     let running: Bool
     /// This row's ⌘-digit, or nil for a row no chord launches.
     let slot: Character?
+    var numberedID: String?
+    @Environment(\.numberSlotLabels) private var numberLabels
     /// Observed so a hotkey set/cleared in Settings re-renders the row's keycaps immediately.
     @Environment(HotKeyManager.self) private var hotKeys
     /// Observed for the same reason: an alias edit re-renders the row's badge at once.
@@ -328,7 +333,9 @@ private struct AppRow: View {
                 ExtensionRefreshIndicator(state: refresh)
                     .font(metrics.typography.rowTrailing)
             }
-            if let slot, palette.commandHeld {
+            if let slot = numberLabels[String(reflecting: numberedID ?? app.id)] ?? slot,
+                palette.commandHeld
+            {
                 HStack(spacing: metrics.spacing.xxs) {
                     KeyCapChip(text: "⌘", style: .outline)
                     KeyCapChip(text: String(slot), style: .outline)
